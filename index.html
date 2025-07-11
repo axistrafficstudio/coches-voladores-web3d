@@ -10,72 +10,62 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
+    html {
+      box-sizing: border-box;
       width: 100vw;
-      height: 100vh;
+      min-height: 100vh;
       font-family: 'Orbitron', 'Inter', Helvetica, Arial, sans-serif;
       color: #eaf6ff;
       background: linear-gradient(180deg, #1e3a8a 0%, #181c24 100%);
       position: relative;
       transition: background 0.8s cubic-bezier(.77,0,.18,1);
+      overflow-x: hidden;
     }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
       width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 0;
-      background: url('https://assets.codepen.io/1468070/noise.png'), 
-                  repeating-linear-gradient(120deg, rgba(30,58,138,0.12) 0 2px, transparent 2px 8px);
-      opacity: 0.18;
-      mix-blend-mode: screen;
-      animation: noise-move 2s linear infinite;
+      overflow-x: hidden;
+      /* NO overflow:hidden ni height:100vh */
+      position: relative;
+      z-index: 1;
     }
-    body::after {
-      content: "";
+    #webgl {
       position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       z-index: 0;
-      background: url('https://www.transparenttextures.com/patterns/wave.png');
-      opacity: 0.12;
-      animation: wave-move 8s linear infinite;
-    }
-    @keyframes noise-move {
-      0% { background-position: 0 0, 0 0; }
-      100% { background-position: 100px 100px, 80px 40px; }
-    }
-    @keyframes wave-move {
-      0% { background-position: 0 0; }
-      100% { background-position: 200px 0; }
+      pointer-events: none;
+      background: transparent;
     }
     #header {
       position: sticky;
       top: 0;
+      left: 0;
       width: 100vw;
+      min-height: 7rem;
       z-index: 30;
       background: linear-gradient(90deg, #1e3a8a 0%, #ff8c3a 100%);
       backdrop-filter: blur(12px);
       display: flex;
+      flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      padding: 2.2rem 5vw 2.2rem 5vw;
+      padding: 1.2rem 3vw 1.2rem 3vw; /* Reduce padding lateral para más espacio */
       font-family: 'Orbitron', 'Inter', Helvetica, Arial, sans-serif;
       color: #eaf6ff;
-      gap: 2vw;
+      box-sizing: border-box;
+      gap: 0; /* Elimina gap para evitar desbordamiento */
       box-shadow: 0 2px 32px 0 rgba(58,108,255,0.08);
       transition: background 0.6s cubic-bezier(.77,0,.18,1);
     }
     #header .logo-img {
-      height: 4.2rem; /* Más grande */
+      height: 6rem;
       margin-right: 2vw;
+      min-width: 6rem;
+      max-width: 12vw;
+      object-fit: contain;
       filter: drop-shadow(0 2px 12px #3a6cff88);
       transition: transform 0.5s cubic-bezier(.77,0,.18,1);
     }
@@ -88,9 +78,10 @@
       align-items: center;
       justify-content: center;
       flex: 1;
+      min-width: 0;
     }
     #header .nav-link {
-      font-size: 1rem; /* Más pequeña */
+      font-size: 1rem;
       font-weight: 500;
       color: #eaf6ff;
       text-decoration: none;
@@ -112,13 +103,19 @@
       color: #ff8c3a;
       box-shadow: 0 2px 16px 0 #ff8c3a33;
     }
+    #header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-left: 2vw;
+      flex-shrink: 0;
+    }
     #header .toggle-mode {
       background: none;
       border: none;
       border-radius: 50%;
       padding: 0.5rem;
       cursor: pointer;
-      margin-left: 2vw;
       box-shadow: 0 2px 12px #3a6cff55;
       display: flex;
       align-items: center;
@@ -135,17 +132,35 @@
     #header .toggle-mode.light svg {
       filter: drop-shadow(0 2px 12px #3a6cff88);
     }
-    #scroll-container {
+    #header .spotify-btn {
+      background: none;
+      border: none;
+      border-radius: 50%;
+      padding: 0.5rem;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #1db95455;
       display: flex;
-      flex-direction: column;
-      width: 100vw;
-      min-height: 100vh;
-      overflow-y: auto;
-      overflow-x: hidden;
-      scroll-snap-type: y mandatory;
-      scroll-behavior: smooth;
+      align-items: center;
+      justify-content: center;
+      transition: box-shadow 0.2s;
+      position: relative;
+    }
+    #header .spotify-btn svg {
+      width: 2.2rem;
+      height: 2.2rem;
+      filter: drop-shadow(0 2px 12px #1db95488);
+      transition: filter 0.3s;
+    }
+    #scroll-container {
       position: relative;
       z-index: 2;
+      width: 100vw;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      /* NO overflow-y: auto; */
     }
     .section {
       width: 100vw;
@@ -235,10 +250,43 @@
       transition: top 0.3s;
     }
     /* Responsive */
+    @media (max-width: 1200px) {
+      #header {
+        padding: 1.2rem 1vw 1.2rem 1vw;
+      }
+      #header .nav {
+        gap: 1vw;
+      }
+    }
     @media (max-width: 900px) {
-      #header { flex-direction: column; gap: 1vw; padding: 1.2rem 2vw; }
-      .content { max-width: 90vw; margin-left: 2vw; padding: 1.2rem 1.2rem; }
-      #hud { top: 24vh; right: 2vw; }
+      #header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1vw;
+        padding: 1.2rem 2vw;
+        min-height: unset;
+      }
+      #header .logo-img {
+        height: 3rem;
+        margin: 0 auto 1rem auto;
+      }
+      #header-controls {
+        margin-left: 0;
+        justify-content: center;
+      }
+      #header .nav {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .content {
+        max-width: 90vw;
+        margin-left: 2vw;
+        padding: 1.2rem 1.2rem;
+      }
+      #hud {
+        top: 24vh;
+        right: 2vw;
+      }
     }
   </style>
 </head>
@@ -255,14 +303,25 @@
       <a href="#" class="nav-link">Press</a>
       <a href="#" class="nav-link">Contact</a>
     </nav>
-    <button id="toggle-mode" class="toggle-mode" title="Modo Claro/Oscuro">
-      <svg viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="12" stroke="#ff8c3a" stroke-width="3" fill="#181c24"/>
-        <path d="M16 8a8 8 0 1 0 8 8" stroke="#ff8c3a" stroke-width="3" stroke-linecap="round"/>
-      </svg>
-    </button>
+    <div id="header-controls">
+      <button id="toggle-mode" class="toggle-mode" title="Modo Claro/Oscuro">
+        <svg viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="12" stroke="#ff8c3a" stroke-width="3" fill="#181c24"/>
+          <path d="M16 8a8 8 0 1 0 8 8" stroke="#ff8c3a" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button id="spotify-btn" class="spotify-btn" title="Reproducir música">
+        <svg viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" fill="#1db954"/>
+          <path d="M10 20c4-2 8-2 12 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 16c3-1.5 7-1.5 10 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <path d="M14 12c2-1 6-1 8 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
   </div>
-  <div id="scroll-container">
+  <canvas id="webgl"></canvas>
+  <div id="scroll-container" style="position:relative; z-index:2;">
     <section class="section">
       <div class="content">
         <h1 style="font-size:3rem;font-weight:700;display:flex;align-items:center;gap:1rem;">
@@ -344,7 +403,6 @@
       </div>
     </section>
   </div>
-  <canvas id="webgl"></canvas>
   <!-- Correcciones y mejoras en el código analizado -->
 <!-- Principales errores corregidos:
   - Doble declaración de scrollContainer y doble addEventListener('scroll')
@@ -403,92 +461,54 @@
     console.error('Error loading GLB:', error);
   });
 
-  // HUD de videojuego con velocidad y altura a la derecha
-  const hud = document.createElement('div');
-  hud.id = 'hud';
-  hud.innerHTML = `
-    <div style="background:rgba(24,40,60,0.55);border:2px solid #3a6cff;border-radius:1.2rem;box-shadow:0 0 24px #3a6cff55;color:#eaf6ff;padding:1.2rem 2rem;min-width:220px;backdrop-filter:blur(2px);font-family:'Inter',Arial,sans-serif;">
-      <h2 style="font-size:1.2rem;margin:0 0 1rem 0;letter-spacing:0.1em;color:#5eeaff;text-shadow:0 0 8px #3a6cff;">SKYDRIVE HUD</h2>
-      <ul style="list-style:none;padding:0;margin:0;">
-        <li style="margin-bottom:0.7em;display:flex;align-items:center;">
-          <svg width="22" height="22"><circle cx="11" cy="11" r="9" stroke="#5eeaff" stroke-width="2" fill="none"/><path d="M11 11 L11 4" stroke="#5eeaff" stroke-width="2" stroke-linecap="round"/></svg>
-          <span id="hud-speed" style="margin-left:0.7em;">0 km/h</span>
-        </li>
-        <li style="margin-bottom:0.7em;display:flex;align-items:center;">
-          <svg width="22" height="22"><rect x="4" y="8" width="14" height="6" rx="3" stroke="#3a6cff" stroke-width="2" fill="none"/><rect x="9" y="10" width="4" height="2" rx="1" fill="#5eeaff"/></svg>
-          <span id="hud-altitude" style="margin-left:0.7em;">0 m</span>
-        </li>
-      </ul>
-    </div>
-  `;
-  document.body.appendChild(hud);
-
-  // Modo claro/oscuro con icono
-  const toggleBtn = document.getElementById('toggle-mode');
-  let isLight = false;
-  toggleBtn.addEventListener('click', () => {
-    isLight = !isLight;
-    if (isLight) {
-      document.body.style.background = "linear-gradient(180deg, #ff8c3a 0%, #fffbe6 100%)";
-      toggleBtn.classList.add('light');
-    } else {
-      document.body.style.background = "linear-gradient(180deg, #1e3a8a 0%, #181c24 100%)";
-      toggleBtn.classList.remove('light');
-    }
-  });
-
   // HERO: cámara cerca del dron al inicio, se aleja y rota con el scroll
   let heroStartZ = 6; // cerca al inicio
-  let heroEndZ = 18;  // lejos al final
+  let heroEndZ = 10;  // termina más cerca que antes (antes era 18)
   let heroStartY = 2;
   let heroEndY = 6;
   let heroStartRot = 0;
-  let heroEndRot = Math.PI / 2;
+  let heroEndRot = Math.PI; // Gira 180 grados, queda "de espaldas" a la cámara
 
-  // Un solo listener para scroll, unifica lógica de cámara y color
-  const scrollContainer = document.getElementById('scroll-container');
-  scrollContainer.addEventListener('scroll', () => {
-    const scrollY = scrollContainer.scrollTop;
-    const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
     const t = Math.max(0, Math.min(1, scrollY / maxScroll));
 
-    // Cámara HERO animada
     camera.position.z = heroStartZ + (heroEndZ - heroStartZ) * t;
     camera.position.y = heroStartY + (heroEndY - heroStartY) * t;
     camera.lookAt(0, 2, 0);
 
-    // Rotación y color del dron
     if (car) {
       car.rotation.y = heroStartRot + (heroEndRot - heroStartRot) * t;
-
-      // Transición de color: azul a naranja
-      const r = Math.round(58 + t * (255 - 58));
-      const g = Math.round(108 + t * (140 - 108));
-      const b = Math.round(255 + t * (58 - 255));
-      const colorScroll = (r << 16) | (g << 8) | b;
-
-      car.traverse(function(child) {
-        if (child.isMesh) child.material.color.set(colorScroll);
-      });
-      ambientLight.color.set(colorScroll);
-      frontLight.color.set(colorScroll);
-      directionalLight.color.set(colorScroll);
-
-      // Fondo: transición de azul a naranja
-      document.body.style.background = `linear-gradient(180deg, rgb(${r},${g},${b}) 0%, #181c24 100%)`;
-
-      // Niebla y luz
-      let fogEnd = 40 + (1-t) * 120;
-      scene.fog.near = 18;
-      scene.fog.far = fogEnd;
-      ambientLight.intensity = 0.7 + t*1.2;
-      frontLight.intensity = 1.5 + t*1.5;
-      directionalLight.intensity = 1.2 + t*0.8;
-
-      // HUD datos ficticios
-      document.getElementById('hud-speed').textContent = `${Math.round(120 + scrollY/10)} km/h`;
-      document.getElementById('hud-altitude').textContent = `${Math.round(20 + scrollY/30)} m`;
     }
+
+    // Transición de color: azul a naranja
+    const r = Math.round(58 + t * (255 - 58));
+    const g = Math.round(108 + t * (140 - 108));
+    const b = Math.round(255 + t * (58 - 255));
+    const colorScroll = (r << 16) | (g << 8) | b;
+
+    car.traverse(function(child) {
+      if (child.isMesh) child.material.color.set(colorScroll);
+    });
+    ambientLight.color.set(colorScroll);
+    frontLight.color.set(colorScroll);
+    directionalLight.color.set(colorScroll);
+
+    // Fondo: transición de azul a naranja
+    document.body.style.background = `linear-gradient(180deg, rgb(${r},${g},${b}) 0%, #181c24 100%)`;
+
+    // Niebla y luz
+    let fogEnd = 40 + (1-t) * 120;
+    scene.fog.near = 18;
+    scene.fog.far = fogEnd;
+    ambientLight.intensity = 0.7 + t*1.2;
+    frontLight.intensity = 1.5 + t*1.5;
+    directionalLight.intensity = 1.2 + t*0.8;
+
+    // HUD datos ficticios
+    document.getElementById('hud-speed').textContent = `${Math.round(120 + scrollY/10)} km/h`;
+    document.getElementById('hud-altitude').textContent = `${Math.round(20 + scrollY/30)} m`;
   });
 
   // Animación
@@ -508,6 +528,47 @@
   // Botón "Start Piloting" abre una nueva pestaña con el simulador
   document.getElementById('pilot-btn').addEventListener('click', () => {
     window.open('pilot.html', '_blank');
+  });
+
+  // Modo claro/oscuro con icono
+  const toggleBtn = document.getElementById('toggle-mode');
+  let isLight = false;
+  toggleBtn.addEventListener('click', () => {
+    isLight = !isLight;
+    if (isLight) {
+      document.body.style.background = "linear-gradient(180deg, #ff8c3a 0%, #fffbe6 100%)";
+      toggleBtn.classList.add('light');
+    } else {
+      document.body.style.background = "linear-gradient(180deg, #1e3a8a 0%, #181c24 100%)";
+      toggleBtn.classList.remove('light');
+    }
+  });
+
+  // Spotify API (simple embed, no login)
+  let spotifyPlaying = false;
+  let spotifyIframe = null;
+  document.getElementById('spotify-btn').addEventListener('click', () => {
+    if (!spotifyPlaying) {
+      spotifyIframe = document.createElement('iframe');
+      spotifyIframe.src = "https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator";
+      spotifyIframe.width = "0";
+      spotifyIframe.height = "0";
+      spotifyIframe.style.position = "fixed";
+      spotifyIframe.style.bottom = "20px";
+      spotifyIframe.style.right = "20px";
+      spotifyIframe.style.width = "320px";
+      spotifyIframe.style.height = "80px";
+      spotifyIframe.style.border = "none";
+      spotifyIframe.style.zIndex = "9999";
+      document.body.appendChild(spotifyIframe);
+      spotifyPlaying = true;
+    } else {
+      if (spotifyIframe) {
+        document.body.removeChild(spotifyIframe);
+        spotifyIframe = null;
+      }
+      spotifyPlaying = false;
+    }
   });
 </script>
 </body>
