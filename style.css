@@ -1,19 +1,36 @@
 body {
   margin: 0;
   overflow-x: hidden;
-  font-family: 'Inter', 'Poppins', 'Helvetica', sans-serif;
-  background: #f7f7fa; /* blanco suave */
-  color: #222; /* gris oscuro */
+  font-family: 'Inter', 'Poppins', 'Helvetica', Arial, sans-serif;
+  background: #f7f7fa;
+  color: #232323;
+  min-height: 100vh;
 }
-canvas {
-  position: fixed;
+#scroll-container {
+  position: absolute;
   top: 0;
   left: 0;
-  z-index: -1;
-  background: transparent;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 2;
+  padding-left: 7vw;
 }
 .section {
-  color: #222;
+  margin-bottom: 7vh;
   font-weight: 500;
-  letter-spacing: 0.02em;
+  font-size: 2.2rem;
+  opacity: 0.92;
+  letter-spacing: 0.01em;
+}
+canvas#webgl {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+  background: transparent;
 }

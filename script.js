@@ -3,7 +3,7 @@ import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/
 
 // Escena
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0a0a);
+scene.background = null; // Fondo transparente para minimalismo
 
 // Cámara
 const camera = new THREE.PerspectiveCamera(
@@ -23,22 +23,43 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
-// Iluminación
-const ambientLight = new THREE.AmbientLight(0xffe0b2, 0.7); // luz cálida
+// Iluminación cálida y minimalista
+const ambientLight = new THREE.AmbientLight(0xffe0b2, 0.5);
 scene.add(ambientLight);
 
-const dirLight = new THREE.DirectionalLight(0xffc107, 1.2); // luz cálida intensa
+const dirLight = new THREE.DirectionalLight(0xffc107, 1.1);
 dirLight.position.set(5, 5, 5);
 scene.add(dirLight);
 
-// Cargar modelo GLB
+const pointLight = new THREE.PointLight(0xffab40, 1.5, 100);
+pointLight.position.set(0, 1, 3);
+scene.add(pointLight);
+
+// Cargar modelo GLB solo una vez y aplicar material reflectante
 const loader = new GLTFLoader();
-let car;
+let car = null;
 
 loader.load('./assets/car.glb', (gltf) => {
   car = gltf.scene;
-  car.scale.set(1, 1, 1);
+  car.scale.set(1.5, 1.5, 1.5); // Aumenta la escala si no se ve
+  car.position.set(0, -0.5, 0); // Centra el modelo
   car.rotation.y = Math.PI;
+
+  // Material reflectante y minimalista
+  const newMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    metalness: 0.8,
+    roughness: 0.2
+  });
+
+  car.traverse((child) => {
+    if (child.isMesh) {
+      child.material = newMaterial;
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
+
   scene.add(car);
 });
 
