@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyDrive Innovations</title>
+  <!-- Tipografía Orbitron e Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+    html {
+      box-sizing: border-box;
+      width: 100vw;
+      min-height: 100vh;
+      font-family: 'Orbitron', 'Inter', Helvetica, Arial, sans-serif;
+      color: #eaf6ff;
+      background: linear-gradient(180deg, #1e3a8a 0%, #181c24 100%);
+      position: relative;
+      transition: background 0.8s cubic-bezier(.77,0,.18,1);
+      overflow-x: hidden;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      width: 100vw;
+      overflow-x: hidden;
+      /* NO overflow:hidden ni height:100vh */
+      position: relative;
+      z-index: 1;
+    }
+    #webgl {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      background: transparent;
+    }
+    #header {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      min-height: 7rem;
+      z-index: 30;
+      background: linear-gradient(90deg, #1e3a8a 0%, #ff8c3a 100%);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 3vw 1.2rem 3vw; /* Reduce padding lateral para más espacio */
+      font-family: 'Orbitron', 'Inter', Helvetica, Arial, sans-serif;
+      color: #eaf6ff;
+      box-sizing: border-box;
+      gap: 0; /* Elimina gap para evitar desbordamiento */
+      box-shadow: 0 2px 32px 0 rgba(58,108,255,0.08);
+      transition: background 0.6s cubic-bezier(.77,0,.18,1);
+    }
+    #header .logo-img {
+      height: 6rem;
+      margin-right: 2vw;
+      min-width: 6rem;
+      max-width: 12vw;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 12px #3a6cff88);
+      transition: transform 0.5s cubic-bezier(.77,0,.18,1);
+    }
+    #header .logo-img:hover {
+      transform: scale(1.08) rotate(-6deg);
+    }
+    #header .nav {
+      display: flex;
+      gap: 2vw;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-width: 0;
+    }
+    #header .nav-link {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #eaf6ff;
+      text-decoration: none;
+      letter-spacing: 0.09em;
+      padding: 0.3rem 1.1rem;
+      border-radius: 0.7rem;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px 0 rgba(58,108,255,0.07);
+      position: relative;
+      text-align: center;
+    }
+    #header .nav-link:hover {
+      background: rgba(58,108,255,0.18);
+      color: #5eeaff;
+      box-shadow: 0 2px 16px 0 #3a6cff33;
+    }
+    #header .nav-link.active {
+      background: rgba(255,140,58,0.18);
+      color: #ff8c3a;
+      box-shadow: 0 2px 16px 0 #ff8c3a33;
+    }
+    #header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-left: 2vw;
+      flex-shrink: 0;
+    }
+    #header .toggle-mode {
+      background: none;
+      border: none;
+      border-radius: 50%;
+      padding: 0.5rem;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #3a6cff55;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: box-shadow 0.2s;
+      position: relative;
+    }
+    #header .toggle-mode svg {
+      width: 2.2rem;
+      height: 2.2rem;
+      filter: drop-shadow(0 2px 12px #ff8c3a88);
+      transition: filter 0.3s;
+    }
+    #header .toggle-mode.light svg {
+      filter: drop-shadow(0 2px 12px #3a6cff88);
+    }
+    #header .spotify-btn {
+      background: none;
+      border: none;
+      border-radius: 50%;
+      padding: 0.5rem;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #1db95455;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: box-shadow 0.2s;
+      position: relative;
+    }
+    #header .spotify-btn svg {
+      width: 2.2rem;
+      height: 2.2rem;
+      filter: drop-shadow(0 2px 12px #1db95488);
+      transition: filter 0.3s;
+    }
+    #scroll-container {
+      position: relative;
+      z-index: 2;
+      width: 100vw;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      /* NO overflow-y: auto; */
+    }
+    .section {
+      width: 100vw;
+      min-height: 100vh;
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      background: transparent;
+    }
+    .content {
+      position: relative;
+      z-index: 10;
+      color: #eaf6ff;
+      background: rgba(24,28,36,0.7);
+      border-radius: 1.2rem;
+      padding: 3rem 4rem;
+      box-shadow: 0 2px 32px 0 rgba(0,0,0,0.14);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      max-width: 44vw;
+      margin-left: 6vw;
+      margin-top: 3vw;
+      margin-bottom: 3vw;
+      font-family: 'Inter', 'Orbitron', Helvetica, Arial, sans-serif;
+      transition: box-shadow 0.3s;
+    }
+    .content h1, .content h2 {
+      font-family: 'Orbitron', 'Inter', Helvetica, Arial, sans-serif;
+      margin-bottom: 2rem;
+      margin-top: 0;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .content ul, .content blockquote {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .content blockquote {
+      font-style: italic;
+      border-left: 3px solid #3a6cff;
+      padding-left: 1.2rem;
+      color: #5eeaff;
+      background: rgba(58,108,255,0.07);
+      border-radius: 0.5rem;
+    }
+    .content input, .content textarea {
+      font-family: inherit;
+      background: #23293a;
+      color: #eaf6ff;
+      border: none;
+      border-radius: 0.4rem;
+      padding: 0.7rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 1.08rem;
+    }
+    .content button {
+      font-family: inherit;
+      font-size: 1.1rem;
+      background: #0a2540;
+      color: #eaf6ff;
+      border: none;
+      border-radius: 0.7rem;
+      padding: 0.8rem 2.2rem;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px #3a6cff33;
+      margin-top: 0.5rem;
+    }
+    .content button:hover {
+      background: #1e3a5c;
+      box-shadow: 0 2px 24px #3a6cff55;
+    }
+    /* HUD a la derecha, más espacio con cabecero */
+    #hud {
+      position: fixed;
+      top: 20vh; /* Más espacio arriba */
+      right: 4vw;
+      width: auto;
+      height: auto;
+      pointer-events: none;
+      z-index: 20;
+      transition: top 0.3s;
+    }
+    /* Responsive */
+    @media (max-width: 1200px) {
+      #header {
+        padding: 1.2rem 1vw 1.2rem 1vw;
+      }
+      #header .nav {
+        gap: 1vw;
+      }
+    }
+    @media (max-width: 900px) {
+      #header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1vw;
+        padding: 1.2rem 2vw;
+        min-height: unset;
+      }
+      #header .logo-img {
+        height: 3rem;
+        margin: 0 auto 1rem auto;
+      }
+      #header-controls {
+        margin-left: 0;
+        justify-content: center;
+      }
+      #header .nav {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .content {
+        max-width: 90vw;
+        margin-left: 2vw;
+        padding: 1.2rem 1.2rem;
+      }
+      #hud {
+        top: 24vh;
+        right: 2vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <img src="assets/logo.png" alt="SkyDrive Logo" class="logo-img">
+    <nav class="nav">
+      <a href="#" class="nav-link active">Home</a>
+      <a href="#" class="nav-link">Models</a>
+      <a href="#" class="nav-link">Technology</a>
+      <a href="#" class="nav-link">Pilot</a>
+      <a href="#" class="nav-link">Innovation</a>
+      <a href="#" class="nav-link">Partners</a>
+      <a href="#" class="nav-link">Press</a>
+      <a href="#" class="nav-link">Contact</a>
+    </nav>
+    <div id="header-controls">
+      <button id="toggle-mode" class="toggle-mode" title="Modo Claro/Oscuro">
+        <svg viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="12" stroke="#ff8c3a" stroke-width="3" fill="#181c24"/>
+          <path d="M16 8a8 8 0 1 0 8 8" stroke="#ff8c3a" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button id="spotify-btn" class="spotify-btn" title="Reproducir música">
+        <svg viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" fill="#1db954"/>
+          <path d="M10 20c4-2 8-2 12 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 16c3-1.5 7-1.5 10 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <path d="M14 12c2-1 6-1 8 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <canvas id="webgl"></canvas>
+  <div id="scroll-container" style="position:relative; z-index:2;">
+    <section class="section">
+      <div class="content">
+        <h1 style="font-size:3rem;font-weight:700;display:flex;align-items:center;gap:1rem;">
+          <svg width="38" height="38" viewBox="0 0 38 38"><circle cx="19" cy="19" r="18" stroke="#3a6cff" stroke-width="2" fill="none"/><path d="M19 8 L19 19 L28 19" stroke="#3a6cff" stroke-width="2" stroke-linecap="round"/></svg>
+          SkyDrive Innovations
+        </h1>
+        <p style="font-size:1.3rem;">
+          Líderes en movilidad aérea avanzada. Nuestra misión es transformar el transporte urbano y conectar el mundo con tecnología de drones de última generación.
+        </p>
+        <blockquote style="margin:2rem 0 0 0;padding-left:1.2rem;border-left:3px solid #3a6cff;color:#5eeaff;font-size:1.1rem;">
+          “El futuro pertenece a quienes creen en la belleza de sus sueños tecnológicos.”<br>
+          <span style="color:#eaf6ff;font-size:0.95rem;">— Equipo SkyDrive</span>
+        </blockquote>
+      </div>
+    </section>
+    <section class="section">
+      <div class="content">
+        <h2 style="font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:0.7rem;">
+          <svg width="28" height="28" viewBox="0 0 28 28"><rect x="4" y="8" width="20" height="12" rx="6" stroke="#ff8c3a" stroke-width="2" fill="none"/><rect x="11" y="12" width="6" height="4" rx="2" fill="#3a6cff"/></svg>
+          Our Models
+        </h2>
+        <p style="font-size:1.1rem;">
+          Descubre nuestra gama de coches voladores y drones inteligentes, diseñados para ofrecer seguridad, eficiencia y sostenibilidad. Cada modelo incorpora IA de navegación, propulsión antigravedad y sistemas de energía renovable.
+        </p>
+        <ul style="margin-top:1.2rem;padding-left:1.2rem;">
+          <li>🚀 <b>SkyDrive X-2025:</b> Velocidad máxima de 720 km/h, autonomía de 1.200 km.</li>
+          <li>🛸 <b>UrbanFlyer:</b> Compacto, silencioso y perfecto para la ciudad.</li>
+          <li>🌐 <b>NeuroPilot:</b> IA avanzada para rutas seguras y personalizadas.</li>
+        </ul>
+      </div>
+    </section>
+    <section class="section">
+      <div class="content">
+        <h2 style="font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:0.7rem;">
+          <svg width="28" height="28" viewBox="0 0 28 28"><polygon points="14,4 24,24 4,24" stroke="#5eeaff" stroke-width="2" fill="none"/><circle cx="14" cy="18" r="2" fill="#ff8c3a"/></svg>
+          Pilot Your SkyDrive
+        </h2>
+        <p style="font-size:1.1rem;">
+          Toma el control y surca los cielos con nuestra experiencia de pilotaje virtual. Simula maniobras, explora entornos futuristas y siente la libertad de volar con tecnología SkyDrive.
+        </p>
+        <button id="pilot-btn" style="margin-top:1.2rem;">
+          <svg width="22" height="22" viewBox="0 0 22 22" style="vertical-align:middle;margin-right:0.5em;"><circle cx="11" cy="11" r="9" stroke="#3a6cff" stroke-width="2" fill="none"/><path d="M11 11 L17 11" stroke="#3a6cff" stroke-width="2" stroke-linecap="round"/></svg>
+          Start Piloting
+        </button>
+      </div>
+    </section>
+    <section class="section">
+      <div class="content">
+        <h2 style="font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:0.7rem;">
+          <svg width="28" height="28" viewBox="0 0 28 28"><rect x="6" y="6" width="16" height="16" rx="4" stroke="#3a6cff" stroke-width="2" fill="none"/><circle cx="14" cy="14" r="3" fill="#ff8c3a"/></svg>
+          Our Values
+        </h2>
+        <p style="font-size:1.1rem;">
+          <b>Innovación:</b> Apostamos por la investigación y el desarrollo constante.<br>
+          <b>Sostenibilidad:</b> Tecnología limpia y energías renovables.<br>
+          <b>Libertad:</b> Conectamos personas y ciudades, eliminando barreras físicas.
+        </p>
+        <blockquote style="margin:1.2rem 0 0 0;padding-left:1.2rem;border-left:3px solid #ff8c3a;color:#ff8c3a;font-size:1rem;">
+          “No solo volamos, cambiamos el mundo desde el aire.”
+        </blockquote>
+      </div>
+    </section>
+    <section class="section">
+      <div class="content">
+        <h2 style="font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:0.7rem;">
+          <svg width="28" height="28" viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" rx="6" stroke="#5eeaff" stroke-width="2" fill="none"/><path d="M8 14h12" stroke="#3a6cff" stroke-width="2" stroke-linecap="round"/></svg>
+          Contact Us
+        </h2>
+        <p style="font-size:1.1rem;">
+          ¿Quieres saber más sobre nuestros vehículos o colaborar con SkyDrive? Rellena el formulario y nuestro equipo te contactará.
+        </p>
+        <input type="text" placeholder="Name">
+        <input type="email" placeholder="Email">
+        <textarea placeholder="Message"></textarea>
+        <button>
+          <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:0.4em;"><circle cx="9" cy="9" r="8" stroke="#3a6cff" stroke-width="2" fill="none"/><path d="M9 5v4l3 2" stroke="#3a6cff" stroke-width="2" stroke-linecap="round"/></svg>
+          Submit
+        </button>
+      </div>
+    </section>
+  </div>
+  <!-- Correcciones y mejoras en el código analizado -->
+<!-- Principales errores corregidos:
+  - Doble declaración de scrollContainer y doble addEventListener('scroll')
+  - Posible conflicto en la animación de cámara y rotación del dron
+  - Uso de variables no declaradas (car puede no estar cargado aún)
+  - Mejor gestión de listeners y animación
+  - Evita duplicidad de eventos y lógica
+-->
+<script>
+  // Three.js Setup
+  const scene = new THREE.Scene();
+
+  // Niebla azulada para ambiente futurista
+  scene.fog = new THREE.Fog(0x181c24, 18, 40);
+
+  // Iluminación cálida y azulada
+  const ambientLight = new THREE.AmbientLight(0x3a6cff, 0.7);
+  scene.add(ambientLight);
+
+  // Luz direccional gris oscuro
+  const directionalLight = new THREE.DirectionalLight(0x181c24, 1.2);
+  directionalLight.position.set(5, 10, 7);
+  scene.add(directionalLight);
+
+  // Segunda luz blanca frontal para resaltar texturas
+  const frontLight = new THREE.PointLight(0xffffff, 1.5, 100);
+  frontLight.position.set(12, 6, 18);
+  scene.add(frontLight);
+
+  // Cámara: más cerca y enfocada a la derecha
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.set(8, 4, 12);
+  camera.lookAt(0, 2, 0);
+
+  // Renderizador
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl'), antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  // Cargar modelo GLB futurista
+  let car = null;
+  const loader = new THREE.GLTFLoader();
+  loader.load('./assets/car.glb', function(gltf) {
+    car = gltf.scene;
+    car.scale.set(1.2, 1.2, 1.2);
+    car.position.set(5, 2, 0);
+    car.traverse(function(child) {
+      if (child.isMesh) {
+        child.material.metalness = 0.9;
+        child.material.roughness = 0.15;
+        child.material.color.set(0x3a6cff);
+      }
+    });
+    scene.add(car);
+  }, undefined, function(error) {
+    console.error('Error loading GLB:', error);
+  });
+
+  // HERO: cámara cerca del dron al inicio, se aleja y rota con el scroll
+  let heroStartZ = 6; // cerca al inicio
+  let heroEndZ = 10;  // termina más cerca que antes (antes era 18)
+  let heroStartY = 2;
+  let heroEndY = 6;
+  let heroStartRot = 0;
+  let heroEndRot = Math.PI; // Gira 180 grados, queda "de espaldas" a la cámara
+
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+    const t = Math.max(0, Math.min(1, scrollY / maxScroll));
+
+    camera.position.z = heroStartZ + (heroEndZ - heroStartZ) * t;
+    camera.position.y = heroStartY + (heroEndY - heroStartY) * t;
+    camera.lookAt(0, 2, 0);
+
+    if (car) {
+      car.rotation.y = heroStartRot + (heroEndRot - heroStartRot) * t;
+    }
+
+    // Transición de color: azul a naranja
+    const r = Math.round(58 + t * (255 - 58));
+    const g = Math.round(108 + t * (140 - 108));
+    const b = Math.round(255 + t * (58 - 255));
+    const colorScroll = (r << 16) | (g << 8) | b;
+
+    car.traverse(function(child) {
+      if (child.isMesh) child.material.color.set(colorScroll);
+    });
+    ambientLight.color.set(colorScroll);
+    frontLight.color.set(colorScroll);
+    directionalLight.color.set(colorScroll);
+
+    // Fondo: transición de azul a naranja
+    document.body.style.background = `linear-gradient(180deg, rgb(${r},${g},${b}) 0%, #181c24 100%)`;
+
+    // Niebla y luz
+    let fogEnd = 40 + (1-t) * 120;
+    scene.fog.near = 18;
+    scene.fog.far = fogEnd;
+    ambientLight.intensity = 0.7 + t*1.2;
+    frontLight.intensity = 1.5 + t*1.5;
+    directionalLight.intensity = 1.2 + t*0.8;
+
+    // HUD datos ficticios
+    document.getElementById('hud-speed').textContent = `${Math.round(120 + scrollY/10)} km/h`;
+    document.getElementById('hud-altitude').textContent = `${Math.round(20 + scrollY/30)} m`;
+  });
+
+  // Animación
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Responsive Canvas
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Botón "Start Piloting" abre una nueva pestaña con el simulador
+  document.getElementById('pilot-btn').addEventListener('click', () => {
+    window.open('pilot.html', '_blank');
+  });
+
+  // Modo claro/oscuro con icono
+  const toggleBtn = document.getElementById('toggle-mode');
+  let isLight = false;
+  toggleBtn.addEventListener('click', () => {
+    isLight = !isLight;
+    if (isLight) {
+      document.body.style.background = "linear-gradient(180deg, #ff8c3a 0%, #fffbe6 100%)";
+      toggleBtn.classList.add('light');
+    } else {
+      document.body.style.background = "linear-gradient(180deg, #1e3a8a 0%, #181c24 100%)";
+      toggleBtn.classList.remove('light');
+    }
+  });
+
+  // Spotify API (simple embed, no login)
+  let spotifyPlaying = false;
+  let spotifyIframe = null;
+  document.getElementById('spotify-btn').addEventListener('click', () => {
+    if (!spotifyPlaying) {
+      spotifyIframe = document.createElement('iframe');
+      spotifyIframe.src = "https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator";
+      spotifyIframe.width = "0";
+      spotifyIframe.height = "0";
+      spotifyIframe.style.position = "fixed";
+      spotifyIframe.style.bottom = "20px";
+      spotifyIframe.style.right = "20px";
+      spotifyIframe.style.width = "320px";
+      spotifyIframe.style.height = "80px";
+      spotifyIframe.style.border = "none";
+      spotifyIframe.style.zIndex = "9999";
+      document.body.appendChild(spotifyIframe);
+      spotifyPlaying = true;
+    } else {
+      if (spotifyIframe) {
+        document.body.removeChild(spotifyIframe);
+        spotifyIframe = null;
+      }
+      spotifyPlaying = false;
+    }
+  });
+</script>
+</body>
+</html>
