@@ -183,37 +183,48 @@ function initThemeToggle() {
   const toggleButton = document.getElementById('toggle-mode');
   const body = document.body;
   
-  // Check for saved theme preference
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'light') {
-    body.classList.add('light-mode');
-  }
+  // Check for saved theme or default to dark
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  body.setAttribute('data-theme', savedTheme);
   
-  toggleButton.addEventListener('click', function() {
-    body.classList.toggle('light-mode');
+  toggleButton.addEventListener('click', () => {
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     
-    // Save theme preference
-    if (body.classList.contains('light-mode')) {
-      localStorage.setItem('theme', 'light');
-    } else {
-      localStorage.setItem('theme', 'dark');
-    }
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
     
-    // Update button icon if needed
-    updateThemeIcon();
+    // Smooth transition
+    body.style.transition = 'all 0.3s ease';
+    setTimeout(() => {
+      body.style.transition = '';
+    }, 300);
   });
 }
 
-function updateThemeIcon() {
-  const toggleButton = document.getElementById('toggle-mode');
-  const isLight = document.body.classList.contains('light-mode');
+// Spotify Integration
+function initSpotify() {
+  const spotifyButton = document.getElementById('spotify-button');
   
-  // You can update the icon here if you want different icons for light/dark mode
-  if (isLight) {
-    toggleButton.style.color = '#666666';
-  } else {
-    toggleButton.style.color = '#cccccc';
-  }
+  spotifyButton.addEventListener('click', () => {
+    // Open Spotify Web Player
+    window.open('https://open.spotify.com', '_blank');
+    
+    // Add visual feedback
+    spotifyButton.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+      spotifyButton.style.transform = '';
+    }, 150);
+  });
+  
+  // Optional: Add hover sound effect or animation
+  spotifyButton.addEventListener('mouseenter', () => {
+    spotifyButton.style.boxShadow = '0 0 20px rgba(255, 102, 0, 0.4)';
+  });
+  
+  spotifyButton.addEventListener('mouseleave', () => {
+    spotifyButton.style.boxShadow = '';
+  });
 }
 
 // Smooth scroll for navigation links

@@ -215,57 +215,6 @@
       transition: transform 0.1s ease;
     }
 
-    /* G-Force Indicator */
-    .gforce-indicator {
-      position: absolute;
-      right: 30px;
-      bottom: 240px;
-      width: 120px;
-      height: 120px;
-      background: rgba(0, 0, 0, 0.9);
-      border: 2px solid #333333;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .gforce-value {
-      font-size: 24px;
-      font-weight: 800;
-      color: #ff6600;
-      line-height: 1;
-    }
-
-    .gforce-label {
-      font-size: 10px;
-      color: #999999;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .gforce-bar {
-      position: absolute;
-      right: 170px;
-      bottom: 240px;
-      width: 20px;
-      height: 120px;
-      background: rgba(0, 0, 0, 0.9);
-      border: 1px solid #333333;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .gforce-fill {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: linear-gradient(to top, #00ff00 0%, #ffff00 50%, #ff6600 80%, #ff0000 100%);
-      transition: height 0.2s ease;
-      border-radius: 0 0 8px 8px;
-    }
-
     /* Crosshair */
     .crosshair {
       position: absolute;
@@ -385,59 +334,43 @@
       color: #000000;
     }
 
-    /* Top Center Controls Container */
-    .top-center-controls {
-      position: absolute;
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%);
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000000;
       display: flex;
-      gap: 15px;
-      align-items: center;
-      pointer-events: auto;
-    }
-
-    /* Simulator Theme and Spotify Buttons */
-    .simulator-toggle-mode, .simulator-spotify-button {
-      background: rgba(0, 0, 0, 0.9);
-      border: 2px solid #333333;
-      border-radius: 8px;
-      padding: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      z-index: 1000;
     }
 
-    .simulator-toggle-mode svg, .simulator-spotify-button svg {
-      width: 18px;
-      height: 18px;
-      color: #ffffff;
-      transition: color 0.3s ease;
-    }
-
-    .simulator-toggle-mode:hover, .simulator-spotify-button:hover {
-      background: rgba(0, 0, 0, 1);
-      border-color: #ff6600;
-      transform: translateY(-2px);
-    }
-
-    .simulator-toggle-mode:hover svg, .simulator-spotify-button:hover svg {
+    .loading-text {
+      font-size: 24px;
+      font-weight: 700;
       color: #ff6600;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
 
-    .simulator-spotify-button svg {
-      fill: currentColor;
+    .loading-bar {
+      width: 300px;
+      height: 4px;
+      background: #333333;
+      border-radius: 2px;
+      overflow: hidden;
     }
 
-    /* Light Mode for Simulator */
-    body[data-theme="light"] {
-      background: #f5f5f5;
-    }
-
-    body[data-theme="light"] #simulator-canvas {
-      background: radial-gradient(circle at 50% 50%, #e0e0e0 0%, #f5f5f5 100%);
+    .loading-progress {
+      width: 0%;
+      height: 100%;
+      background: #ff6600;
+      transition: width 0.3s ease;
     }
 
     /* Responsive */
@@ -469,25 +402,10 @@
 
   <!-- HUD Overlay -->
   <div class="hud-overlay">
-    <!-- Back Button - Left -->
+    <!-- Back Button -->
     <button class="back-button" onclick="window.location.href='index_modular.html'">
       ← BACK TO HOME
     </button>
-
-    <!-- Top Center Controls -->
-    <div class="top-center-controls">
-      <button class="simulator-toggle-mode" id="simulator-toggle-mode">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="5"/>
-          <path d="m12 1 0 2m0 18 0 2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12l2 0m18 0 2 0M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-        </svg>
-      </button>
-      <button class="simulator-spotify-button" id="simulator-spotify-button">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="0">
-          <path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm5.568 17.328c-.24 0-.48-.072-.696-.24-1.944-1.128-4.368-1.392-6.576-.72-.312.096-.624-.072-.72-.384-.096-.312.072-.624.384-.72 2.52-.768 5.256-.456 7.512.864.288.168.384.528.216.816-.12.192-.336.384-.576.384h-.544zm1.056-2.64c-.288 0-.576-.096-.792-.288-2.184-1.296-5.496-1.68-8.088-.936-.36.096-.72-.096-.816-.456s.096-.72.456-.816c2.928-.84 6.72-.432 9.312 1.08.336.192.456.624.264.96-.144.24-.384.456-.672.456h-.664zm.096-2.784c-.192 0-.384-.048-.576-.168-2.592-1.536-6.888-1.68-9.36-1.008-.432.12-.864-.12-.984-.552-.12-.432.12-.864.552-.984 2.808-.768 7.632-.624 10.656 1.176.408.24.528.768.288 1.176-.168.264-.432.36-.576.36z"/>
-        </svg>
-      </button>
-    </div>
 
     <!-- Controls Panel -->
     <div class="controls-panel">
@@ -573,10 +491,6 @@
         <div class="metric-label">DISTANCE</div>
         <div class="metric-value" id="distance-display">0<span class="metric-unit">M</span></div>
       </div>
-      <div class="metric-group">
-        <div class="metric-label">G-FORCE</div>
-        <div class="metric-value" id="gforce-display">0.0<span class="metric-unit">G</span></div>
-      </div>
     </div>
 
     <!-- Altitude Indicator -->
@@ -599,17 +513,6 @@
     <!-- Compass -->
     <div class="compass">
       <div class="compass-needle" id="compass-needle"></div>
-    </div>
-
-    <!-- G-Force Indicator -->
-    <div class="gforce-indicator">
-      <div class="gforce-value" id="gforce-indicator">0.0</div>
-      <div class="gforce-label">G-FORCE</div>
-    </div>
-
-    <!-- G-Force Bar -->
-    <div class="gforce-bar">
-      <div class="gforce-fill" id="gforce-fill" style="height: 0%;"></div>
     </div>
 
     <!-- Crosshair -->
