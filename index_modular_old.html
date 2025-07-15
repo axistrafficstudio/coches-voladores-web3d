@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyDrive Innovations</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header Navigation -->
+  <header id="header">
+    <img src="assets/logo.png" alt="SkyDrive Logo" class="logo-img" />
+    
+    <nav class="nav">
+      <a href="#home" class="nav-link active">Home</a>
+      <a href="#models" class="nav-link">Models</a>
+      <a href="#technology" class="nav-link">Technology</a>
+      <a href="#sustainability" class="nav-link">Sustainability</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </nav>
+    
+    <div id="header-controls">
+      <button class="toggle-mode" id="toggle-mode" aria-label="Toggle theme">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#ff8c3a" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="m12 1 0 2m0 18 0 2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12l2 0m18 0 2 0M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      </button>
+      
+      <button class="spotify-btn" aria-label="Music controls">
+        <svg width="24" height="24" viewBox="0 0 32 32" stroke="#1db954" stroke-width="2" fill="none">
+          <path d="M10 20c4-2 8-2 12 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 16c3-1.5 7-1.5 10 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <path d="M14 12c2-1 6-1 8 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- 3D Canvas Background -->
+  <canvas id="webgl" aria-hidden="true"></canvas>
+
+  <!-- Main Content Container -->
+  <main id="scroll-container">
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">The Future of Aerial Mobility</h1>
+        <p class="hero-subtitle">
+          Revolutionizing urban transportation through cutting-edge AI-powered flying vehicles. 
+          Experience seamless integration of advanced technology and sustainable mobility solutions.
+        </p>
+        
+        <div class="hero-tools" role="list" aria-label="Design tools">
+          <div class="tool-icon tool-figma" role="listitem" aria-label="Figma">🎨</div>
+          <div class="tool-icon tool-sketch" role="listitem" aria-label="Sketch">✨</div>
+          <div class="tool-icon tool-adobe" role="listitem" aria-label="Adobe">Ai</div>
+        </div>
+      </div>
+      
+      <div class="hero-visual">
+        <div class="mockup-container">
+          <div class="main-mockup">
+            <div class="mockup-header">
+              <div class="mockup-logo">SkyDrive</div>
+              <nav class="mockup-nav" aria-label="Mockup navigation">
+                <span>Home</span>
+                <span>Models</span>
+                <span>Tech</span>
+                <span>Contact</span>
+              </nav>
+            </div>
+            
+            <h2 class="mockup-title">Next-Gen Flying Cars</h2>
+            <p class="mockup-subtitle">Experience the future of transportation with our AI-powered aerial vehicles</p>
+            
+            <button class="mockup-button">Explore Models</button>
+            
+            <div class="features-grid">
+              <div class="feature-item">
+                <div class="feature-title">AI Navigation</div>
+                <div class="feature-desc">Advanced neural networks for safe autonomous flight</div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-title">Zero Emissions</div>
+                <div class="feature-desc">Sustainable electric propulsion systems</div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-title">Urban Ready</div>
+                <div class="feature-desc">Designed for efficient city transportation</div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-title">Smart Tech</div>
+                <div class="feature-desc">IoT integration and real-time analytics</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Floating Cards -->
+          <div class="floating-card floating-card-1">
+            <div class="feature-title">720 km/h</div>
+            <div class="feature-desc">Maximum Speed</div>
+          </div>
+          <div class="floating-card floating-card-2">
+            <div class="feature-title">1,200 km</div>
+            <div class="feature-desc">Range</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Models Section -->
+    <section id="models" class="section">
+      <div class="content">
+        <h2 style="font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:0.7rem;">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+            <rect x="4" y="8" width="20" height="12" rx="6" stroke="#ff8c3a" stroke-width="2" fill="none"/>
+            <rect x="11" y="12" width="6" height="4" rx="2" fill="#3a6cff"/>
+          </svg>
+          Our Models
+        </h2>
+        <p style="font-size:1.1rem;">
+          Descubre nuestra gama de coches voladores y drones inteligentes, diseñados para ofrecer seguridad, eficiencia y sostenibilidad. Cada modelo incorpora IA de navegación, propulsión antigravedad y sistemas de energía renovable.
+        </p>
+        <ul style="margin-top:1.2rem;padding-left:1.2rem;">
+          <li>🚀 <strong>SkyDrive X-2025:</strong> Velocidad máxima de 720 km/h, autonomía de 1.200 km.</li>
+          <li>🛸 <strong>UrbanFlyer:</strong> Compacto, silencioso y perfecto para la ciudad.</li>
+          <li>🌐 <strong>NeuroPilot:</strong> IA avanzada para rutas seguras y personalizadas.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section id="technology" class="section">
+      <div class="content">
+        <h2 style="font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:0.7rem;">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+            <circle cx="14" cy="14" r="12" stroke="#3a6cff" stroke-width="2" fill="none"/>
+            <circle cx="14" cy="14" r="6" fill="#5eeaff"/>
+            <circle cx="14" cy="14" r="3" fill="#1e3a8a"/>
+          </svg>
+          Advanced Technology
+        </h2>
+        <p style="font-size:1.1rem;">
+          Nuestros vehículos aéreos integran tecnologías de vanguardia que redefinen el concepto de movilidad urbana. Desde sistemas de propulsión sostenible hasta inteligencia artificial de navegación adaptativa.
+        </p>
+        <blockquote style="margin:2rem 0 0 0;padding-left:1.2rem;border-left:3px solid #5eeaff;color:#5eeaff;font-size:1rem;">
+          "La innovación no consiste en decir que sí a 1000 cosas. Consiste en decir que no a 1000 cosas para asegurarte de que no te desvías por el camino equivocado."<br>
+          <span style="color:#eaf6ff;font-size:0.9rem;">— Steve Jobs</span>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- Sustainability Section -->
+    <section id="sustainability" class="section">
+      <div class="content">
+        <h2 style="font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:0.7rem;">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+            <path d="M14 2 L22 8 L22 20 L14 26 L6 20 L6 8 Z" stroke="#5eeaff" stroke-width="2" fill="none"/>
+            <circle cx="14" cy="14" r="4" fill="#3a6cff"/>
+          </svg>
+          Sustainability
+        </h2>
+        <p style="font-size:1.1rem;">
+          Comprometidos con un futuro sostenible, nuestros vehículos utilizan 100% energía renovable y materiales reciclables. Reducimos las emisiones urbanas y contribuimos a un aire más limpio para las generaciones futuras.
+        </p>
+        <ul style="margin-top:1.2rem;padding-left:1.2rem;">
+          <li>🌱 <strong>Energía Solar:</strong> Paneles integrados para carga autónoma.</li>
+          <li>♻️ <strong>Materiales Eco:</strong> Fabricación con componentes reciclados.</li>
+          <li>🌍 <strong>Huella Carbono:</strong> Cero emisiones durante el vuelo.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+      <div class="content">
+        <h2 style="font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:0.7rem;">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+            <rect x="4" y="4" width="20" height="16" rx="4" stroke="#ff8c3a" stroke-width="2" fill="none"/>
+            <circle cx="8" cy="8" r="1" fill="#3a6cff"/>
+            <circle cx="11" cy="8" r="1" fill="#5eeaff"/>
+            <circle cx="14" cy="8" r="1" fill="#ff8c3a"/>
+            <rect x="6" y="11" width="16" height="2" fill="#eaf6ff"/>
+            <rect x="6" y="15" width="12" height="2" fill="#eaf6ff"/>
+          </svg>
+          Contact & Demo
+        </h2>
+        <p style="font-size:1.1rem;">
+          ¿Listo para experimentar el futuro del transporte? Agenda una demostración personalizada y descubre cómo nuestros coches voladores pueden transformar tu forma de viajar.
+        </p>
+        <blockquote style="margin:2rem 0 0 0;padding-left:1.2rem;border-left:3px solid #ff8c3a;color:#ff8c3a;font-size:1rem;">
+          "El mejor momento para plantar un árbol fue hace 20 años. El segundo mejor momento es ahora."<br>
+          <span style="color:#eaf6ff;font-size:0.9rem;">— Proverbio chino</span>
+        </blockquote>
+      </div>
+    </section>
+  </main>
+
+  <!-- HUD Display -->
+  <aside id="hud" aria-label="Visual indicators">
+    <div class="hud-line" style="height:1.8rem; background:rgba(58,108,255,0.5); border-radius:0.1rem;"></div>
+    <div class="hud-line" style="height:0.8rem; background:rgba(94,234,255,0.6); border-radius:0.1rem;"></div>
+    <div class="hud-line" style="height:1.2rem; background:rgba(255,140,58,0.7); border-radius:0.1rem;"></div>
+    <div class="hud-line" style="height:2.4rem; background:rgba(58,108,255,0.8); border-radius:0.1rem;"></div>
+    <div class="hud-line" style="height:0.6rem; background:rgba(94,234,255,0.4); border-radius:0.1rem;"></div>
+  </aside>
+
+  <!-- Custom JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
