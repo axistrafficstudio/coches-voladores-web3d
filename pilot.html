@@ -2,52 +2,395 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Pilot Mode</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyDrive Flight Simulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    body, html { margin:0; padding:0; background:#111; overflow:hidden; }
-    #pilot-canvas { position:fixed; top:0; left:0; width:100vw; height:100vh; }
-    #hud {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      pointer-events: none;
-      z-index: 10;
-      font-family: 'Inter', Arial, sans-serif;
-    }
-    .hud-panel {
-      position: absolute;
-      top: 5vh; left: 5vw;
-      background: rgba(24,40,60,0.55);
-      border: 2px solid #3a6cff;
-      border-radius: 1.2rem;
-      box-shadow: 0 0 24px #3a6cff55;
-      color: #eaf6ff;
-      padding: 2rem 2.5rem;
-      min-width: 260px;
-      backdrop-filter: blur(2px);
-    }
-    .hud-panel h2 {
-      font-size: 1.3rem;
-      margin: 0 0 1rem 0;
-      letter-spacing: 0.1em;
-      color: #5eeaff;
-      text-shadow: 0 0 8px #3a6cff;
-    }
-    .hud-panel ul {
-      list-style: none;
-      padding: 0;
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .hud-panel li {
-      margin-bottom: 0.7em;
-      font-size: 1.1rem;
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #000000;
+      color: #ffffff;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #simulator-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 50% 50%, #111111 0%, #000000 100%);
+    }
+
+    /* DJI-Style HUD Interface */
+    .hud-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Top Bar - Status */
+    .hud-top-bar {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       align-items: center;
+      gap: 30px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #ff6600;
+      border-radius: 25px;
+      padding: 15px 30px;
+      backdrop-filter: blur(10px);
     }
-    .hud-panel li svg {
-      margin-right: 0.7em;
-      opacity: 0.7;
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
     }
+
+    .status-icon {
+      width: 16px;
+      height: 16px;
+      fill: #ff6600;
+    }
+
+    .status-value {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* Flight Metrics - Left Panel */
+    .hud-left-panel {
+      position: absolute;
+      left: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid #333333;
+      border-radius: 12px;
+      padding: 25px;
+      backdrop-filter: blur(15px);
+      min-width: 200px;
+    }
+
+    .metric-group {
+      margin-bottom: 20px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #999999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .metric-unit {
+      font-size: 12px;
+      font-weight: 500;
+      color: #ff6600;
+      margin-left: 5px;
+    }
+
+    /* Altitude Indicator */
+    .altitude-indicator {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 80px;
+      height: 300px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid #333333;
+      border-radius: 40px;
+      overflow: hidden;
+    }
+
+    .altitude-scale {
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+
+    .altitude-marker {
+      position: absolute;
+      right: 10px;
+      width: 30px;
+      height: 2px;
+      background: #666666;
+    }
+
+    .altitude-current {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 30px;
+      background: #ff6600;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #000000;
+    }
+
+    /* Speed Indicator */
+    .speed-indicator {
+      position: absolute;
+      left: 30px;
+      bottom: 100px;
+      width: 120px;
+      height: 120px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #333333;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .speed-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #ff6600;
+      line-height: 1;
+    }
+
+    .speed-label {
+      font-size: 10px;
+      color: #999999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Compass */
+    .compass {
+      position: absolute;
+      right: 30px;
+      bottom: 100px;
+      width: 120px;
+      height: 120px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #333333;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .compass-needle {
+      width: 4px;
+      height: 40px;
+      background: #ff6600;
+      border-radius: 2px;
+      transform-origin: bottom center;
+      transition: transform 0.1s ease;
+    }
+
+    /* Crosshair */
+    .crosshair {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      border: 2px solid #ff6600;
+      border-radius: 50%;
+    }
+
+    .crosshair::before,
+    .crosshair::after {
+      content: '';
+      position: absolute;
+      background: #ff6600;
+    }
+
+    .crosshair::before {
+      left: 50%;
+      top: -10px;
+      width: 2px;
+      height: 20px;
+      transform: translateX(-50%);
+    }
+
+    .crosshair::after {
+      top: 50%;
+      left: -10px;
+      width: 20px;
+      height: 2px;
+      transform: translateY(-50%);
+    }
+
+    /* Warning System */
+    .warning-panel {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 0, 0, 0.9);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-weight: 700;
+      display: none;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
+    }
+
+    /* Controls Help */
+    .controls-panel {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid #333333;
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(15px);
+      pointer-events: auto;
+    }
+
+    .controls-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ff6600;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .control-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .control-key {
+      background: #333333;
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      min-width: 25px;
+      text-align: center;
+    }
+
+    /* Back Button */
+    .back-button {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #ffffff;
+      border: 2px solid #ff6600;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .back-button:hover {
+      background: #ff6600;
+      color: #000000;
+    }
+
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ff6600;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .loading-bar {
+      width: 300px;
+      height: 4px;
+      background: #333333;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .loading-progress {
+      width: 0%;
+      height: 100%;
+      background: #ff6600;
+      transition: width 0.3s ease;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hud-left-panel,
+      .controls-panel {
+        display: none;
+      }
+      
+      .altitude-indicator,
+      .speed-indicator,
+      .compass {
+        transform: scale(0.8);
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
     .hud-shapes {
       position: absolute;
       right: 7vw;
